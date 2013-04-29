@@ -6,8 +6,8 @@ imgautopt
 Imgautopt is a shell script which uses the following external commands and sips command included in the MacOS. 
 The following commands are same as underlying commands found in ImageOptim.app/Contents/MacOS/
 
-pngquant - http://pngquant.org/
-jpegoptim - http://www.kokkonen.net/tjko/projects.html
+* pngquant http://pngquant.org/
+* jpegoptim http://www.kokkonen.net/tjko/projects.html
 
 ## Usage
 
@@ -27,7 +27,7 @@ Imgautopt resizes and compresses images in current directory based on specified 
 
 ## License
 
-imgautopt itself is available under the MIT License, and a license of other commands 
+Imgautopt itself is available under the MIT License, and a license of other commands 
 (i.e. pngquant, jpegoptim and sips) is based on each license.
 
 	The MIT License (MIT)
