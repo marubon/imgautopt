@@ -11,10 +11,11 @@ jpegoptim - http://www.kokkonen.net/tjko/projects.html
 
 ## Usage
 
+Imgautopt resizes and compresses images in current directory based on specified resampling width.
+
     $ imgautopt <resampling width>
 
-    Imgautopt resizes and compresses images in current directory based on specified resampling width.
-
+ 
 ## Output
 
 	2013-04-25 04:29:04 [INFO] imageopt.sh [START SCRIPT]
@@ -26,8 +27,8 @@ jpegoptim - http://www.kokkonen.net/tjko/projects.html
 
 ## License
 
-	imgautopt itself is available under the MIT License, and a license of other commands 
-	(i.e. pngquant, jpegoptim and sips) is based on each license.
+imgautopt itself is available under the MIT License, and a license of other commands 
+(i.e. pngquant, jpegoptim and sips) is based on each license.
 
 	The MIT License (MIT)
 
