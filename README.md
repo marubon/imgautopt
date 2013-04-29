@@ -4,12 +4,13 @@ imgautopt
 **A command line to automate resize and compress images at once for the Mac. **
 
 Imgautopt is a shell script which uses the following external commands and sips command included in the MacOS. 
-The following commands are same as underlying commands found in ImageOptim.app/Contents/MacOS/
+Binaries of the following commands (i.e. binaries provided by this repository) are same as the commands found 
+in ImageOptim.app/Contents/MacOS/
 
 * pngquant http://pngquant.org/
 * jpegoptim http://www.kokkonen.net/tjko/projects.html
 
-##Supported format
+##Supported Format
 * JPEG
 * PNG
 
