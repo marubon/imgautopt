@@ -23,13 +23,14 @@ The following is a example to add the script directory to the environment variab
 
 	export PATH=${PATH}:<FULL PATH OF YOUR CHOSEN DIRECTORY>
 
-Imgautopt resizes and compresses images in current directory based on specified resampling width,
-so you have to move current directory to a directory including target images.
+In the beginning you have to move current directory to a directory including target images
+because the script resizes and compresses images in current directory based on specified resampling width.
+Next execute imgautopt with resampling width.
+The script outputs resized and compressed images to "./output" directory.
 
 	$ cd <directory contains target images>
     $ imgautopt <resampling width>
 
-The script outputs resized and compressed images to "./output" directory.
  
 ## Log
 
