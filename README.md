@@ -20,8 +20,12 @@ Imgautopt resizes and compresses images in current directory based on specified 
 
     $ imgautopt <resampling width>
 
+The script outputs resized and compressed images to "./output" directory
  
-## Output
+## Log
+
+The script outputs a log to "./log" directory, and the log describes image original size, resized size and compressed size, 
+and also saved size and its percentage.
 
 	2013-04-25 04:29:04 [INFO] imageopt.sh [START SCRIPT]
 	2013-04-25 04:29:04 [INFO] imageopt.sh [RESIZE] 2013-04-21_2155.png 170.646kb 65.850kb -104.796kb -62.00%
