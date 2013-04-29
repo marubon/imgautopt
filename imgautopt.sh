@@ -37,6 +37,7 @@ LOG_DIR=./log
 CMDNAME=`basename $0`
 PNG_NUM_COLOR=256
 PNG_COMP_SPEED=1
+IMG_NO_EXIST_FLAG=1;
 
 # Function: LOG()
 # Description: Common function to output log message
@@ -59,25 +60,33 @@ LOG(){
     return 0
 }
 
+# Function: PERCENT()
+# Description: Common function to calculate percentage
 PERCENT(){
     echo $(bc <<< "scale=2; (($1/$2)*100)")
 }
 
+# Function: DIFFERENCE()
+# Description: Common function to calculate difference
 DIFFERENCE(){
     echo $(bc <<< "scale=3; $1-$2")
 }
 
+# Function: SIZE_IN_BYTE()
+# Description: Common function to convert numerical value to byte
 SIZE_IN_BYTE(){
     echo `stat -f %z $1`
 }
 
+# Function: SIZE_IN_KBYTE()
+# Description: Common function to convert byte to kbyte
 SIZE_IN_KBYTE(){
     echo $(bc <<< "scale=3; $1/1000")
 }
 
+# Function: FORMAT_NUM()
+# Description: Common function to format number
 FORMAT_NUM(){
-    #awk '{printf"%\047d\n",$1}' <<< "1000000"
-    #printf "%'d\n" "1000000"
     printf "%'.3f\n" $1
 }
 
@@ -104,7 +113,6 @@ IMG_RESIZE(){
 
         DIFFERENCE_SIZE_BYTE=`DIFFERENCE ${RESIZE_SIZE_BYTE} ${ORIGINAL_SIZE_BYTE}`
         DIFFERENCE_SIZE_KBYTE=`SIZE_IN_KBYTE ${DIFFERENCE_SIZE_BYTE}`
-
 
         RESIZED_RATE=`PERCENT ${RESIZE_SIZE_BYTE} ${ORIGINAL_SIZE_BYTE}`
 
@@ -148,7 +156,6 @@ PNG_COMP(){
         return 0
     elif [ $? -ne 0 ]; then
         LOG "INFO" "Image compression failed: ${FILE_NAME}"
-#rm ${OUTPUT_DIR}/*.png
         LOG "ERROR" "[END] abnormal exit status 1"
         return 1
 fi
@@ -161,59 +168,105 @@ fi
 # Param: FILE file path
 # Param: COMP_SPEED compression speed
 # Param: NUM_COLOR number of color to use
-#JPEG_COMP(){
-#
-#}
+JPEG_COMP(){
+    FILE=$1
+    FILE_NAME=`basename ${FILE}`
+    QUALITY=$2
 
-#if [ $# -ne 1 ]; then
-#    echo "Usage: $CMDNAME <resample width>" 1>&2
-#    exit 1
-#fi
+    ORIGINAL_SIZE_BYTE=`SIZE_IN_BYTE ${FILE}`
+
+    jpegoptim --max ${QUALITY} --strip-all ${FILE} > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        COMPRESSED_SIZE_BYTE=`SIZE_IN_BYTE ${FILE}`
+        ORIGINAL_SIZE_KBYTE=`SIZE_IN_KBYTE ${ORIGINAL_SIZE_BYTE}`
+
+        COMPRESSED_SIZE_KBYTE=`SIZE_IN_KBYTE ${COMPRESSED_SIZE_BYTE}`
+
+        DIFFERENCE_SIZE_BYTE=`DIFFERENCE ${COMPRESSED_SIZE_BYTE} ${ORIGINAL_SIZE_BYTE}`
+        DIFFERENCE_SIZE_KBYTE=`SIZE_IN_KBYTE ${DIFFERENCE_SIZE_BYTE}`
+
+        COMPRESSED_RATE=`PERCENT ${COMPRESSED_SIZE_BYTE} ${ORIGINAL_SIZE_BYTE}`
+
+        LOG "INFO" "[COMPRESS] ${FILE_NAME} `FORMAT_NUM ${ORIGINAL_SIZE_KBYTE}`kb `FORMAT_NUM ${COMPRESSED_SIZE_KBYTE}`kb `FORMAT_NUM ${DIFFERENCE_SIZE_KBYTE}`kb -`DIFFERENCE 100 ${COMPRESSED_RATE}`%"
+
+        return 0
+    elif [ $? -ne 0 ]; then
+        LOG "INFO" "Image compression failed: ${FILE_NAME}"
+        LOG "ERROR" "[END] abnormal exit status 1"
+        return 1
+fi
+
+}
+
+if [ $# -ne 1 ]; then
+    echo "Usage: $CMDNAME <resample width>" 1>&2
+    exit 1
+fi
 
 RESIZE_WIDTH=$1
-
-LOG "INFO" "[START SCRIPT]"
-
-#if [ test "#{RESIZE_WIDTH" == "" ]; then
-#	echo "[ERROR] Resampling width of image is not set."
-#	exit 1
-#fi
-
-# Confirm output directory existence
-if [ ! -d ${OUTPUT_DIR} ]; then
-
-mkdir -p ${OUTPUT_DIR} > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-    LOG "ERROR" "Output directory creation failed."
-    LOG "ERROR" "[END] Abnormal exit status 1"
-    exit 1;
-fi
-fi
 
 # Confirm log directory existence
 if [ ! -d ${LOG_DIR} ]; then
 
     mkdir ${LOG_DIR} > /dev/null 2>&1
     if [ $? -ne 0 ]; then
+        echo "Output directory creation failed."
+        echo "Abnormal exit status 1"
+        exit 1;
+    fi
+fi
+
+LOG "INFO" "[START SCRIPT]"
+
+# Confirm output directory existence
+if [ ! -d ${OUTPUT_DIR} ]; then
+
+    mkdir -p ${OUTPUT_DIR} > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
         LOG "ERROR" "Output directory creation failed."
         LOG "ERROR" "[END] Abnormal exit status 1"
-    exit 1;
+        exit 1;
     fi
 fi
 
 # Confirm PNG file existence
-NUM_TARGET_PNG=`ls ${BASE_DIR}/*.png | wc -l` > /dev/null 2>&1
-if [ ! ${NUM_TARGET_PNG} -gt 0 ]; then
-    LOG "ERROR" "PNG file does not exist."
-    LOG "ERROR" "[END] Abnormal exit status 1"
-    exit 1
+NUM_TARGET=`find ${BASE_DIR} -type f -name "*.png" | wc -l` > /dev/null 2>&1
+if [ ${NUM_TARGET} -gt 0 ]; then
+    IMG_NO_EXIST_FLAG=0
 fi
 
-# Resize PNG file using sips command based on specified resamping width
-for FILE in `ls -1 ${BASE_DIR}/*.png`;
+NUM_TARGET=`find ${BASE_DIR} -type f -name "*.jpg" | wc -l` > /dev/null 2>&1
+if [ ${NUM_TARGET} -gt 0 ]; then
+    IMG_NO_EXIST_FLAG=0
+fi
+
+NUM_TARGET=`find ${BASE_DIR} -type f -name "*.jpeg" | wc -l` > /dev/null 2>&1
+if [ ${NUM_TARGET} -gt 0 ]; then
+    IMG_NO_EXIST_FLAG=0
+fi
+
+if [ ${IMG_NO_EXIST_FLAG} -eq 1 ]; then
+    LOG "ERROR" "Target image file does not exist."
+    LOG "ERROR" "[END] Abnormal exit status 1"
+    exit 1;
+fi
+
+# Resize image files using sips command based on specified resamping width
+for FILE in `find ${BASE_DIR} -type f -name "*.png"`;
 do
     IMG_RESIZE "${FILE}" "${RESIZE_WIDTH}" "${OUTPUT_DIR}"
 done
+
+for FILE in `find ${BASE_DIR} -type f -name "*.jpg"`;
+do
+    IMG_RESIZE "${FILE}" "${RESIZE_WIDTH}" "${OUTPUT_DIR}"
+done
+
+for FILE in `find ${BASE_DIR} -type f -name "*.jpeg"`;
+do
+    IMG_RESIZE "${FILE}" "${RESIZE_WIDTH}" "${OUTPUT_DIR}"
+done
+
 
 # Confirm resized image (i.e. compression target images) existence
 NUM_RESIZED_IMAGE=`find ${OUTPUT_DIR} -type f | wc -c`
@@ -224,10 +277,23 @@ if [ ! ${NUM_RESIZED_IMAGE} -gt 0 ]; then
 fi
 
 # Compress PNG file using pngquant command
-for FILE in `ls -1 ${OUTPUT_DIR}/*.png`;
+#for FILE in `ls -1 ${OUTPUT_DIR}/*.png` > /dev/null 2>&1; 
+for FILE in `find ${OUTPUT_DIR} -type f -name "*.png"`;
 do
     PNG_COMP "${FILE}" 1 256
 done
+
+# Compress JPEG file using jpegoptim command
+for FILE in `find ${OUTPUT_DIR} -type f -name "*.jpg"`; 
+do
+    JPEG_COMP "${FILE}" 100
+done
+
+for FILE in `find ${OUTPUT_DIR} -type f -name "*.jpeg"`; 
+do
+    JPEG_COMP "${FILE}" 100
+done
+
 
 LOG "INFO" "[END SCRIPT] Normal exit status 0"
 

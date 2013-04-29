@@ -9,6 +9,10 @@ The following commands are same as underlying commands found in ImageOptim.app/C
 * pngquant http://pngquant.org/
 * jpegoptim http://www.kokkonen.net/tjko/projects.html
 
+##Supported format
+* JPEG
+* PNG
+
 ## Usage
 
 Imgautopt resizes and compresses images in current directory based on specified resampling width.
