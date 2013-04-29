@@ -16,6 +16,13 @@ in ImageOptim.app/Contents/MacOS/
 
 ## Usage
 
+First, download all files and deploy the files to your chosen direcotry, 
+and add the full path to your environment variable (i.e. $PATH).
+
+The following is a example to add the script directory to the environment variable.
+
+	export PATH=${PATH}:<FULL PATH OF YOUR CHOSEN DIRECTORY>
+
 Imgautopt resizes and compresses images in current directory based on specified resampling width.
 
     $ imgautopt <resampling width>
