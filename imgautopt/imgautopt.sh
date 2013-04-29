@@ -170,13 +170,6 @@ fi
 #    exit 1
 #fi
 
-echo "hogehoge"
-
-
-echo $@
-
-exit 1
-
 RESIZE_WIDTH=$1
 
 LOG "INFO" "[START SCRIPT]"
